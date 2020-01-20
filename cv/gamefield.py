@@ -1,6 +1,7 @@
 import cv2 as cv
 import numpy as np
 from scipy.spatial.distance import euclidean as dist
+import matplotlib.pyplot as plt
 
 def findLines(filename):
     img = cv.imread(filename)
@@ -35,17 +36,40 @@ def filterEquations(eqQ):
         res += [(k, b)]
     return res
 
-def extrapolate(eqQ):
+def extrapolate2(eqQ):
     K = [ k for k, b in eqQ]
     B = [ b for k, b in eqQ]
-    import matplotlib.pyplot as plt
+    
     X = list(range(len(K)))
+    
     a, b, c = np.polyfit(X, sorted(K), 2)
-    K1 = [ a*x**2 + b*x +c for x in range(-2, len(X) + 1) ]
-
+    K1 = [ a*x**2 + b*x +c for x in range(-2, len(X)) ]
     a, b, c = np.polyfit(X, sorted(B), 2)
     B1 = [ a*x**2 + b*x +c for x in X ]
+
+    return list(zip(K1, B1))
     
+def extrapolate1(eqQ):
+    sortedEq = sorted(eqQ, key=lambda x: x[0])
+    plt.plot(range(len(eqQ)), [ x[1] for x in sortedEq ])
+    plt.show()
+    raise Exception
+    K = [ k for k, b in eqQ]
+    B = [ b for k, b in eqQ]
+
+    X = list(range(len(K)))
+
+    plt.plot(X, sorted(K))
+
+    b, c = np.polyfit(X, sorted(K), 1)
+    K1 = [ b*x +c for x in range(-2, len(X)) ]
+    b, c = np.polyfit(X, sorted(B), 1)
+    B1 = [ b*x +c for x in X ]
+    
+    plt.plot(X, K1)
+    plt.show()
+    return list(zip(K1, B1))
+
 def solve(eqA, eqB):
     points = []
     for eqa in eqA:
@@ -65,10 +89,11 @@ def solve(eqA, eqB):
     return filtered_points
 
 if __name__ == '__main__':
-    img, lines = findLines('img/field-5.jpeg')
+    img, lines = findLines('img/field-2.jpeg')
     eqA, eqB = [ filterEquations(eq) for eq in getEquations(lines) ]
-    eqA = extrapolate(eqA)
-#    raise Exception
+    eqA = extrapolate1(eqA)
+#    eqB = extrapolate1(eqB)
+    #raise Exception
     points = solve(eqA, eqB)
     for eq in eqA + eqB:
         k, b = eq
