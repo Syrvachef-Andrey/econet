@@ -11,7 +11,7 @@ int enA = 11;
 int enB = 10;
 MPU6050 accel;
 
-float angle_ax = 0;
+float angle_ax;
 long int t_next;
 
 float clamp(float v, float minv, float maxv){
@@ -75,6 +75,9 @@ analogWrite(enA,0);
 else
 {
 Serial.println("go");
+
+
+
 digitalWrite(in1,LOW);
 digitalWrite(in2,HIGH);
 digitalWrite(in3,LOW);
